@@ -5,6 +5,8 @@
    using System;
    using System.Linq;
    using BookStore.Entities;
+   using System.Diagnostics;
+
 
    namespace BookStore.Controllers
    {
@@ -23,14 +25,14 @@
 public IActionResult GetById(int id)
 {
     var book = _context.Books.Include(x => x.Genre).FirstOrDefault(x => x.Id == id);
-    if (book == null)
-        return NotFound();
+   if (book == null || book.Genre == null)
+    return NotFound();
 
     BookDetailViewModel vm = new BookDetailViewModel()
     {
         Id = book.Id,
         Title = book.Title,
-        Genre = book.Genre?.Name,
+        Genre = book.Genre?.Name ?? "Unknown", // Null kontrolü yapıldı
         PageCount = book.PageCount,
         PublishDate = book.PublishDate.Date.ToString("dd/MM/yyyy")
     };
@@ -51,6 +53,40 @@ public IActionResult GetBooks()
     });
     return Ok(vm);
 }
+[HttpGet("recommend")]
+public IActionResult GetRecommendations(int userId)
+{
+    var start = new ProcessStartInfo
+    {
+        FileName = "C:\\Windows\\py.exe", // Python yorumlayıcıyı çağır
+        Arguments = $"Scripts/recommendation.py 1 {userId}", // Python scriptini çağır ve userId'yi parametre olarak gönder
+        RedirectStandardOutput = true, // Python çıktısını yakala
+        RedirectStandardError = true,  // Hataları yakala
+        UseShellExecute = false,       // Komut işlemeyi gösterme
+        CreateNoWindow = true,         // Yeni pencere açma
+        WorkingDirectory = "C:\\Users\\90537\\Desktop\\cache\\dotnet\\BookStore"
+    };
+
+    string result;
+
+    using (var process = Process.Start(start))
+    {
+        using (var reader = process.StandardOutput)
+        {
+            result = reader.ReadToEnd(); // Python scriptinin çıktısını oku
+        }
+    }
+
+    // Eğer çıktı yoksa hata döndür
+    if (string.IsNullOrEmpty(result))
+    {
+        return StatusCode(500, "No recommendations received from Python script.");
+    }
+
+    // Çıktıyı başarıyla döndür
+    return Ok(result);
+}
+
            [HttpPut("{id}")]
            public IActionResult UpdateBook(int id, [FromBody] UpdateBookModel updateBook)
            {
