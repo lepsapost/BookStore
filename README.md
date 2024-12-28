@@ -9,19 +9,22 @@ This project implements a RESTful API that provides comprehensive CRUD (Create, 
 - Retrieve detailed information for a specific book
 - Update existing book information
 - Remove books from the inventory (Note: This feature is currently in development and has not been fully tested)
+- Generate book recommendations using a Python script
 
 ## Technology Stack
 
 - ASP.NET Core 6.0
 - Entity Framework Core (utilizing InMemory provider)
 - Swagger UI for API documentation and testing
-
+- Python for the recommendation system
+  
 ## Setup and Installation
 
 1. Clone the repository to your local machine
 2. Navigate to the project directory
-3. Execute the command `dotnet run` in your terminal
-4. Access the Swagger UI by opening `http://localhost:5105/swagger/index.html` in your web browser
+3. Ensure Python is installed and added to your system PATH.
+4. Execute the command `dotnet run` in your terminal
+5. Access the Swagger UI by opening `http://localhost:5300/swagger/index.html` in your web browser
 
 ## API Endpoints
 
@@ -60,6 +63,12 @@ json
 "publishDate": "2023-06-20T00:00:00"
 }
 
+### Getting Recommendations
+
+Endpoint: GET /api/Book/recommend?userId=1
+
+Response:  
+["Book-1", "Python Basics", "C# Fundamentals"]
 
 ## Important Notes
 
